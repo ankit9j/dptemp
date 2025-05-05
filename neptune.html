@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neptune Smart EMS API Query</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 10px 0;
+    }
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      min-height: 100px;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Neptune Smart EMS API Query</h1>
+  <p>Enter the JSON payload for the POST request (or leave as default):</p>
+  <textarea id="payload" placeholder='{"CA_NO": "162"}'>
+{
+  "CA_NO": "162"
+}
+  </textarea>
+  <button onclick="sendPostRequest()">Send POST Request</button>
+  <div id="response">Response will appear here...</div>
+
+  <script>
+    async function sendPostRequest() {
+      const responseDiv = document.getElementById('response');
+      const payloadText = document.getElementById('payload').value;
+      let payload;
+
+      // Validate JSON payload
+      try {
+        payload = JSON.parse(payloadText);
+      } catch (error) {
+        responseDiv.innerHTML = `<span class="error">Invalid JSON payload: ${error.message}</span>`;
+        return;
+      }
+
+      // Configure the POST request
+      const url = 'http://greencourt90.neptuneenergia.com//MobileAppService/MobileService.asmx/DASHBOARD'; // Replace with actual API URL
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'gzip',
+		'Host': 'greencourt90.neptuneenergia.com',
+		'User-Agent': 'okhttp/4.9.0',
+		'Access-Control-Allow-Origin': '*'
+      };
+
+      try {
+        responseDiv.innerHTML = 'Sending request...';
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        // Check if response is OK
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Parse and display JSON response
+        const data = await response.json();
+        responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (error) {
+        responseDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
